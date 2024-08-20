@@ -60,7 +60,7 @@ async function submitUserMessage(content: string) {
     2. Key Offering: Rapid implementation (within 72 hours) of custom AI solutions, managed by Vizr.ai experts.
     3. Value Proposition: 
        - Transform business operations quickly
-       - No in-house tech expertise required
+       - No in house tech expertise required
        - Boost productivity (up to 40%)
        - Reduce operational costs (up to 30%)
        - Automate tedious tasks
