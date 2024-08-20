@@ -10,17 +10,25 @@ import {
 } from 'ai/rsc'
 import { openai } from '@ai-sdk/openai'
 
-import { spinner, BotMessage } from '@/components/ui' // Adjust imports to UI components relevant to your case
-
 import {
-  runAsyncFnWithoutBlocking,
-  sleep,
-  nanoid
-} from '@/lib/utils'
+  spinner,
+  BotCard,
+  BotMessage,
+  SystemMessage,
+  // Remove any stock-related imports here
+} from '@/components/stocks'
+
+import { z } from 'zod'
 import { saveChat } from '@/app/actions'
-import { SpinnerMessage, UserMessage } from '@/components/ui/message'
+import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
 import { Chat, Message } from '@/lib/types'
 import { auth } from '@/auth'
+
+// Assuming confirmPurchase is not needed anymore, you can comment it out or remove it
+// async function confirmPurchase(symbol: string, price: number, amount: number) {
+//    'use server'
+//    // Stock purchase logic here
+// }
 
 async function submitUserMessage(content: string) {
   'use server'
@@ -43,28 +51,24 @@ async function submitUserMessage(content: string) {
   let textNode: undefined | React.ReactNode
 
   const result = await streamUI({
-    model: openai('gpt-3.5-turbo'), // Replace with 'gpt-4o-mini' if desired
+    model: openai('gpt-3.5-turbo'),
     initial: <SpinnerMessage />,
     system: `\
     You are an AI assistant for Vizr.ai, a company that rapidly implements and manages advanced AI solutions for SMEs and mid-size companies. Your role is to engage with potential clients, understand their business challenges, and explain how Vizr.ai can help them leverage AI to improve their operations. Keep these key points in mind:
 
     1. Target Audience: SMEs and mid-size companies looking to work smarter but lacking time or expertise to explore AI solutions.
-
     2. Key Offering: Rapid implementation (within 72 hours) of custom AI solutions, managed by Vizr.ai experts.
-
     3. Value Proposition: 
        - Transform business operations quickly
        - No in-house tech expertise required
        - Boost productivity (up to 40%)
        - Reduce operational costs (up to 30%)
        - Automate tedious tasks
-
     4. Approach:
        - Listen to understand unique challenges
        - Craft custom AI solutions
        - Implement and manage the technology
        - Empower clients to excel with AI support
-
     5. Differentiators:
        - Speed of implementation (72 hours)
        - Managed service (ongoing support and optimization)
@@ -111,9 +115,6 @@ async function submitUserMessage(content: string) {
       }
 
       return textNode
-    },
-    tools: {
-      // Add or refactor tools that are relevant to Vizr.ai if needed
     }
   })
 
@@ -123,19 +124,11 @@ async function submitUserMessage(content: string) {
   }
 }
 
-export type AIState = {
-  chatId: string
-  messages: Message[]
-}
-
-export type UIState = {
-  id: string
-  display: React.ReactNode
-}[]
-
+// Keeping the AI configuration intact, but you can remove unused actions if they are not necessary
 export const AI = createAI<AIState, UIState>({
   actions: {
-    submitUserMessage
+    submitUserMessage,
+    // confirmPurchase (comment or remove if not needed)
   },
   initialUIState: [],
   initialAIState: { chatId: nanoid(), messages: [] },
@@ -191,10 +184,17 @@ export const getUIStateFromAIState = (aiState: Chat) => {
     .filter(message => message.role !== 'system')
     .map((message, index) => ({
       id: `${aiState.chatId}-${index}`,
-      display: message.role === 'user' ? (
-        <UserMessage>{message.content as string}</UserMessage>
-      ) : message.role === 'assistant' && typeof message.content === 'string' ? (
-        <BotMessage content={message.content} />
-      ) : null
+      display:
+        message.role === 'tool' ? (
+          message.content.map(tool => {
+            // Remove stock-related UI components or replace with relevant ones
+            return null
+          })
+        ) : message.role === 'user' ? (
+          <UserMessage>{message.content as string}</UserMessage>
+        ) : message.role === 'assistant' &&
+          typeof message.content === 'string' ? (
+          <BotMessage content={message.content} />
+        ) : null
     }))
 }
