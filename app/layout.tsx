@@ -55,7 +55,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex flex-col flex-1 bg-muted/50">
-              {children}  {/* This is where the content of index.tsx or any page will be rendered */}
+              {children} {/* Content from pages like index.tsx will be rendered here */}
             </main>
           </div>
           <TailwindIndicator />
